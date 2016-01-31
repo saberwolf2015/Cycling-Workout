@@ -11,9 +11,7 @@ enum class Step {
     READY,
     STEADY,
     GO,
-    PUSHJUMP,
-    PRESS,
-    HIGHLEGS
+    WORK
 };
 
 class MainWindow : public QMainWindow

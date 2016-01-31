@@ -16,6 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     setPos = 0;
     elapsedTime = 0;
     remainedTime = 0;
+    exPos = 0;
+    exercizes.clear();
+    exercizes.push_back(QString::fromUtf8("Отжимание и выпригивание"));
+    exercizes.push_back(QString::fromUtf8("Пресс"));
+    exercizes.push_back(QString::fromUtf8("Бег с подниманием колен"));
 
     QWidget *centerWidget = new QWidget(this);
     QVBoxLayout* mainLout = new QVBoxLayout(centerWidget);
@@ -77,57 +82,11 @@ QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
 
     QMenu *pMenu = new QMenu(QString::fromUtf8("Файл"));//create menu file
     pMenu->addAction(QString::fromUtf8("Запуск"),this,SLOT(startPressed()));
-    //pMenu->addAction(QString::fromUtf8("Добавить кандзи..."),this,SLOT(addKanjiClicked()));
-    /*
-    QAction *openFile = new QAction(QString::fromUtf8("Открыть..."),pMenu);
-    connect(openFile, SIGNAL(triggered()),this,SLOT(openFilePressed()));
-    pMenu->addAction(openFile);
-    pMenu->addAction(QString::fromUtf8("Открыть номер..."),this,SLOT(openNumberPressed()));
-    pMenu->addAction(QString::fromUtf8("Открыть бинаризованный номер..."),this,SLOT(openTrasholdedNumberPressed()));
-    pMenu->addAction(QString::fromUtf8("Открыть сеть..."),this,SLOT(openNet()));
-    pMenu->addAction(QString::fromUtf8("Открыть даные для обучения..."),this,SLOT(openLearningData()));
-    pMenu->addAction(QString::fromUtf8("Создать шаблоны..."),this,SLOT(createTemplates()));
-    pMenu->addAction(QString::fromUtf8("Открыть шаблоны..."),this,SLOT(loadTemplates()));
-    QMenu* pMenu2 = new QMenu(QString::fromUtf8("Обработка"));
-    pMenu2->addAction(QString::fromUtf8("Обработать картинки..."),this,SLOT(obrabotatImages()));
-
-    pMenu2->addAction(QString::fromUtf8("Увеличить резкость"),this,SLOT(sharpenImage()));
-    pMenu2->addAction(QString::fromUtf8("Найти номер"),this,SLOT(findNumber()));
-    pMenu2->addAction(QString::fromUtf8("Найти номер по блокам"),this,SLOT(findNumberByBlock()));
-    pMenu2->addAction(QString::fromUtf8("Бинаризация по Нобуюки Отсу"),this,SLOT(otsuTrashold()));
-    pMenu2->addAction(QString::fromUtf8("Убрать черноту"),this,SLOT(deleteBlack()));
-    pMenu2->addAction(QString::fromUtf8("Разбить по символам"),this,SLOT(splitNumber()));
-    pMenu2->addAction(QString::fromUtf8("Добить нулями"),this,SLOT(zeroPadding()));
-    pMenu2->addAction(QString::fromUtf8("Перевести в область частот"),this,SLOT(FFT()));
-    pMenu2->addAction(QString::fromUtf8("Подготовить картинки"),this,SLOT(prepareImage()));
-    pMenu2->addAction(QString::fromUtf8("Просканировать директорию"),this,SLOT(scanFolder()));
-    pMenu2->addAction(QString::fromUtf8("Начать обучение"),this,SLOT(startLearning()));
-    pMenu2->addAction(QString::fromUtf8("Начать обучение по моему"),this,SLOT(startMyLearning()));
-    pMenu2->addAction(QString::fromUtf8("Остановить обучение"),this,SLOT(stopLearn()));
-    pMenu2->addAction(QString::fromUtf8("Остановить обучение по моему"),this,SLOT(stopLearnMy()));
-    pMenu2->addAction(QString::fromUtf8("Возобновить обучение"),this,SLOT(continueLearning()));
-    pMenu2->addAction(QString::fromUtf8("Опознать..."),this,SLOT(recognize()));
-    pMenu2->addAction(QString::fromUtf8("Опознать по шаблону..."),this,SLOT(templateRecognize()));
-    pMenu2->addAction(QString::fromUtf8("Опознать номер по шаблону..."),this,SLOT(templateNumberRecognize()));
-    pMenu2->addAction(QString::fromUtf8("Опознать номер через ИНС..."),this,SLOT(annNumberRecognize()));
-    pMenu2->addAction(QString::fromUtf8("Проверка обучения ИНС и шаблонов..."),this,SLOT(testRecognition()));
-    QMenu* pMenuOtchet = new QMenu(QString::fromUtf8("Для отчетности"));
-    pMenuOtchet->addAction(QString::fromUtf8("Создать горизонтальную гистограмму"),this,SLOT(drawHist()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок с разбивкой по квадратам"),this,SLOT(saveWorkSquares()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок с выделенными квадратами"),this,SLOT(detectedSquares()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок с распухшими выделенными квадратами"),this,SLOT(detectedSquaresBloat()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок с обводкой"),this,SLOT(obvodkaSquares()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок с объединенными квадратами"),this,SLOT(unitedSquares()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок после удаления маленьких блоков"),this,SLOT(dropSmallSquares()));
-    pMenuOtchet->addAction(QString::fromUtf8("Сохранить рисунок после удаления маленьких блоков и увеличения сомнительных"),this,SLOT(obvodka()));
-*/
     QMenu *pMenu3 = new QMenu(QString::fromUtf8("Справка"));
     pMenu3->addAction(QString::fromUtf8("Вызов справки"));
     pMenu3->addSeparator();
     pMenu3->addAction(QString::fromUtf8("&О программе"));
     mnuBar->addMenu(pMenu);
-    //mnuBar->addMenu(pMenu2);
-    //mnuBar->addMenu(pMenuOtchet);
     mnuBar->addMenu(pMenu3);
     mnuBar->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     return mnuBar;
@@ -146,47 +105,35 @@ void MainWindow::timerTick() {
         step = Step::GO;
         exersizeLabel->setText(QString::fromUtf8("Внимание"));
     }else if (step == Step::GO) {
-        step = Step::PUSHJUMP;
+        step = Step::WORK;
         setPos = 1;
         remainedTime = timePerEx;
         elapsedTime = 0;
+        setPos = 1;
+        updateSet();
         exersizeLabel->setText(QString::fromUtf8("Марш"));
     } else {
         //6 min
-        if(elapsedTime == setCount*timePerEx*3) {
+        if(elapsedTime == setCount*timePerEx*exercizes.size()) {
              exersizeLabel->setText(QString::fromUtf8("ГОТОВО"));
              timer->stop();
              return;
         }
         if(remainedTime == 0) {
-            qDebug() << " remained is zero";
-            if(step == Step::PUSHJUMP) {
-                qDebug() << "***press";
-                step = Step::PRESS;
-            }else if(step == Step::PRESS) {
-                step = Step::HIGHLEGS;
-                qDebug() << "***highlegs";
-            } else if(step == Step::HIGHLEGS) {
-                step = Step::PUSHJUMP;
-                qDebug() << "***pushjump";
+            exPos++;
+            if(exPos>=exercizes.size()) {
+                exPos = 0;
                 setPos++;
             }
+            qDebug() << " remained is zero";
             remainedTime = timePerEx;
             updateSet();
         }
 
         if(remainedTime == timePerEx) {
             qDebug() << " remained is timePerEx";
-            if(step == Step::PUSHJUMP) {
-                qDebug() << " set pushjup";
-                exersizeLabel->setText(QString::fromUtf8("Отжимание и выпригивание"));
-            } else if(step == Step::PRESS) {
-                qDebug() << " set press";
-                exersizeLabel->setText(QString::fromUtf8("Пресс"));
-            } else if(step == Step::HIGHLEGS) {
-                qDebug() << " set highlegs";
-                exersizeLabel->setText(QString::fromUtf8("Бег с подниманием колен"));
-            }
+            exersizeLabel->setText(exercizes.at(exPos));
+            qDebug() << " set " << exercizes.at(exPos);
         }
         updateTime();
         elapsedTime++;
