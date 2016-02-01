@@ -11,7 +11,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    timePerEx = 1;//30;//30;
+    timePerEx = 30;//30;
     setCount = 4;
     setPos = 0;
     elapsedTime = 0;
@@ -116,6 +116,7 @@ void MainWindow::timerTick() {
         //6 min
         if(elapsedTime == setCount*timePerEx*exercizes.size()) {
              exersizeLabel->setText(QString::fromUtf8("ГОТОВО"));
+             updateTime();
              timer->stop();
              return;
         }
@@ -144,8 +145,12 @@ void MainWindow::timerTick() {
 
 void MainWindow::updateTime() {
     QTime tm;
-    tm.setHMS(0,0,elapsedTime);
+    tm.setHMS(0,0,0);
+    tm = tm.addSecs(elapsedTime);
+    qDebug() << "elapsed = " << tm;
     timerLabel->setText(tm.toString("hh:mm:ss"));
-    tm.setHMS(0,0,remainedTime);
+    tm.setHMS(0,0,0);
+    tm = tm.addSecs(remainedTime);
+    qDebug() << "remained = " << tm;
     remainLabel->setText(tm.toString("hh:mm:ss"));
 }
