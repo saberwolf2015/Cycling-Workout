@@ -7,6 +7,7 @@
 class QMenuBar;
 class QLabel;
 class QTimer;
+class CreateExerciseDialog;
 enum class Step {
     READY,
     STEADY,
@@ -24,8 +25,11 @@ public:
 public slots:
     void startPressed();
     void timerTick();
+    void loadExercise();
+    void createExercise();
 private:
-    QVector<QString> exercizes;
+    CreateExerciseDialog* createExerciseDialog;
+    QVector<QString> exercises;
     int exPos;
     void updateSet();
     void updateTime();
@@ -36,7 +40,7 @@ private:
     QLabel* timerLabel;
     QLabel* setLabel;
     QLabel* remainLabel;
-    QLabel* exersizeLabel;
+    QLabel* exersiseLabel;
     int elapsedTime;
     int remainedTime;
     int setPos;

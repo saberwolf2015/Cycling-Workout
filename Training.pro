@@ -14,6 +14,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    createexercisedialog.cpp \
+    exercisewidget.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    createexercisedialog.h \
+    exercisewidget.h \
+    struct.h

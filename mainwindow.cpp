@@ -7,6 +7,10 @@
 #include <QMenuBar>
 #include <QDebug>
 #include <QTime>
+#include <QJsonObject>
+#include <QFileDialog>
+#include <QApplication> //qApp
+#include "createexercisedialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,10 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
     elapsedTime = 0;
     remainedTime = 0;
     exPos = 0;
-    exercizes.clear();
-    exercizes.push_back(QString::fromUtf8("Отжимание и выпригивание"));
-    exercizes.push_back(QString::fromUtf8("Пресс"));
-    exercizes.push_back(QString::fromUtf8("Бег с подниманием колен"));
+    exercises.clear();
+    exercises.push_back(QString::fromUtf8("Отжимание и выпригивание"));
+    exercises.push_back(QString::fromUtf8("Пресс"));
+    exercises.push_back(QString::fromUtf8("Бег с подниманием колен"));
+
+    createExerciseDialog = new CreateExerciseDialog(this);
 
     QWidget *centerWidget = new QWidget(this);
     QVBoxLayout* mainLout = new QVBoxLayout(centerWidget);
@@ -44,17 +50,17 @@ MainWindow::MainWindow(QWidget *parent)
     timeLout->addWidget(remainLabel);
 
 
-    exersizeLabel = new QLabel(centerWidget);
+    exersiseLabel = new QLabel(centerWidget);
     mainLout->addLayout(timeLout);
-    mainLout->addWidget(exersizeLabel);
+    mainLout->addWidget(exersiseLabel);
     mainLout->addStretch();
     QFont bigFont("Times", 38, QFont::Bold);
-    exersizeLabel->setFont(bigFont);
-    exersizeLabel->setAlignment(Qt::AlignCenter);
+    exersiseLabel->setFont(bigFont);
+    exersiseLabel->setAlignment(Qt::AlignCenter);
 
     updateSet();
     updateTime();
-    exersizeLabel->setText(QString::fromUtf8("Ожидание"));
+    exersiseLabel->setText(QString::fromUtf8("Ожидание"));
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerTick()));
@@ -64,8 +70,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMenuBar(menuBar);
     this->setWindowTitle(QString::fromUtf8("Training"));
     this->resize(640,480);
-
-
 
 }
 
@@ -81,6 +85,8 @@ QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
     QMenuBar *mnuBar = new QMenuBar(wdg);//creating menu bar
 
     QMenu *pMenu = new QMenu(QString::fromUtf8("Файл"));//create menu file
+    pMenu->addAction(QString::fromUtf8("Создать упраженение"),this,SLOT(createExercise()));
+    pMenu->addAction(QString::fromUtf8("Загрузка упраженения"),this,SLOT(loadExercise()));
     pMenu->addAction(QString::fromUtf8("Запуск"),this,SLOT(startPressed()));
     QMenu *pMenu3 = new QMenu(QString::fromUtf8("Справка"));
     pMenu3->addAction(QString::fromUtf8("Вызов справки"));
@@ -100,10 +106,10 @@ void MainWindow::startPressed() {
 void MainWindow::timerTick() {
     if(step == Step::READY) {
         step = Step::STEADY;
-        exersizeLabel->setText(QString::fromUtf8("Настарт"));
+        exersiseLabel->setText(QString::fromUtf8("Настарт"));
     } else if (step == Step::STEADY) {
         step = Step::GO;
-        exersizeLabel->setText(QString::fromUtf8("Внимание"));
+        exersiseLabel->setText(QString::fromUtf8("Внимание"));
     }else if (step == Step::GO) {
         step = Step::WORK;
         setPos = 1;
@@ -111,30 +117,30 @@ void MainWindow::timerTick() {
         elapsedTime = 0;
         setPos = 1;
         updateSet();
-        exersizeLabel->setText(QString::fromUtf8("Марш"));
+        exersiseLabel->setText(QString::fromUtf8("Марш"));
     } else {
         //6 min
-        if(elapsedTime == setCount*timePerEx*exercizes.size()) {
-             exersizeLabel->setText(QString::fromUtf8("ГОТОВО"));
+        if(elapsedTime == setCount*timePerEx*exercises.size()) {
+             exersiseLabel->setText(QString::fromUtf8("ГОТОВО"));
              updateTime();
              timer->stop();
              return;
         }
         if(remainedTime == 0) {
             exPos++;
-            if(exPos>=exercizes.size()) {
+            if(exPos>=exercises.size()) {
                 exPos = 0;
                 setPos++;
             }
-            qDebug() << " remained is zero";
+            qDebug() << " remained is sero";
             remainedTime = timePerEx;
             updateSet();
         }
 
         if(remainedTime == timePerEx) {
             qDebug() << " remained is timePerEx";
-            exersizeLabel->setText(exercizes.at(exPos));
-            qDebug() << " set " << exercizes.at(exPos);
+            exersiseLabel->setText(exercises.at(exPos));
+            qDebug() << " set " << exercises.at(exPos);
         }
         updateTime();
         elapsedTime++;
@@ -153,4 +159,17 @@ void MainWindow::updateTime() {
     tm = tm.addSecs(remainedTime);
     qDebug() << "remained = " << tm;
     remainLabel->setText(tm.toString("hh:mm:ss"));
+}
+
+void MainWindow::loadExercise() {
+    QJsonObject data;
+    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть карту"),qApp->applicationDirPath()+"/data/");
+    qDebug() << " path = " << path;
+}
+
+void MainWindow::createExercise() {
+    if(createExerciseDialog->exec()) {
+        qDebug() << "accept";
+        qDebug() << createExerciseDialog->getExerciseData();
+    }
 }
