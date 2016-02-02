@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QFileDialog>
 #include <QApplication> //qApp
+#include <QFile>
 #include "createexercisedialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -163,13 +164,21 @@ void MainWindow::updateTime() {
 
 void MainWindow::loadExercise() {
     QJsonObject data;
-    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть карту"),qApp->applicationDirPath()+"/data/");
+    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть упражнение"),qApp->applicationDirPath()+"/data/");
     qDebug() << " path = " << path;
+    QFile jsonFile(path);
+    jsonFile.open(QFile::ReadOnly);
+    createExerciseDialog->loadExerciseData(jsonFile.readAll());
+    createExercise();
 }
 
 void MainWindow::createExercise() {
     if(createExerciseDialog->exec()) {
         qDebug() << "accept";
         qDebug() << createExerciseDialog->getExerciseData();
+        QString path = QFileDialog::getSaveFileName(this,QString::fromUtf8("Сохранить упражнение"),qApp->applicationDirPath()+"/data/");
+        QFile jsonFile(path);
+        jsonFile.open(QFile::WriteOnly);
+        jsonFile.write(createExerciseDialog->getExerciseData());
     }
 }

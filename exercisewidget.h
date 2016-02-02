@@ -21,6 +21,7 @@ public:
     ~ExerciseWidget();
     ExerciseStruct getData();
     void setBoxTitle(const QString &data);
+    void setData(const ExerciseStruct &data);
 signals:
 void removeMe();
 public slots:

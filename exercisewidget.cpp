@@ -17,7 +17,7 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
     {
         QHBoxLayout*hlout = new QHBoxLayout();
         QLabel*lbl = new QLabel(groupBox);
-        lbl->setText(QString::fromUtf8("Название упраженения"));
+        lbl->setText(QString::fromUtf8("Название: "));
         nameEdit = new QLineEdit(groupBox);
         nameEdit->setText(QString::fromUtf8("упраженение"));
         hlout->addWidget(lbl);
@@ -30,6 +30,7 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
         timeSpinBox->setPrefix(QString::fromUtf8("Время упражнения: "));
         timeSpinBox->setSuffix(QString::fromUtf8(" c"));
         timeSpinBox->setMinimum(1);
+        timeSpinBox->setValue(30);
         timeSpinBox->setMaximum(3600);
         groupLout->addWidget(timeSpinBox);
     }
@@ -54,6 +55,11 @@ ExerciseStruct ExerciseWidget::getData() {
     data.name = nameEdit->text();
     data.time = timeSpinBox->value();
     return data;
+}
+
+void ExerciseWidget::setData(const ExerciseStruct &data) {
+    nameEdit->setText(data.name);
+    timeSpinBox->setValue(data.time);
 }
 
 void ExerciseWidget::setBoxTitle(const QString &data) {

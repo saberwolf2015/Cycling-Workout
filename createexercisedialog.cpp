@@ -66,14 +66,19 @@ void CreateExerciseDialog::createExerciseField(QBoxLayout *lout) {
 
 }
 
+ExerciseWidget* CreateExerciseDialog::createExersise() {
+    QString title = QString::fromUtf8("Упраженение") + QString::number(exersiseVector.size()+1);
+    ExerciseWidget* wdg = new ExerciseWidget(this);
+    connect(wdg,SIGNAL(removeMe()),this,SLOT(removeExercise()));
+    wdg->setBoxTitle(title);
+    exersiseVector.push_back(wdg);
+    return wdg;
+}
+
 void CreateExerciseDialog::pushButtonClicked() {
     QPushButton* btn =  (qobject_cast<QPushButton*>(sender()));
     if(btn == addExerciseBtn) {
-        QString title = QString::fromUtf8("Упраженение") + QString::number(exersiseVector.size()+1);
-        ExerciseWidget* wdg = new ExerciseWidget(this);
-        connect(wdg,SIGNAL(removeMe()),this,SLOT(removeExercise()));
-        wdg->setBoxTitle(title);
-        exersiseVector.push_back(wdg);
+        this->createExersise();
         updateGrid();
     }
 }
@@ -117,10 +122,11 @@ void CreateExerciseDialog::updateGrid() {
     }
 }
 
-QString CreateExerciseDialog::getExerciseData() {
+QByteArray CreateExerciseDialog::getExerciseData() {
     QJsonDocument doc;
     QVariantMap map;
     map.insert("name", nameEdit->text());
+    map.insert("set_count",setCountSpinBox->value());
     QVariantMap step;
     //QJsonArray arr;
     QVariantList lst;
@@ -139,9 +145,32 @@ QString CreateExerciseDialog::getExerciseData() {
     //obj["name"]=nameEdit->text();
     doc.setObject(json);
     qDebug() << " " << doc.toJson();
-    return QString(doc.toJson());
+    return doc.toJson();
 }
 
-void CreateExerciseDialog::loadExerciseData(const QString &data) {
+void CreateExerciseDialog::loadExerciseData(const QByteArray &data) {
+    qDebug() << " data = " << data;
+    QJsonDocument doc;
+    doc = QJsonDocument::fromJson(data);
+    qDebug() << "readed " << doc.toJson();
+    QJsonObject item = doc.object();
+    qDebug() << " name = " << item["name"].toString();
+    qDebug() << " set_count = " << item["set_count"].toString();
+    nameEdit->setText(item["name"].toString());
+    if(!item["name"].isUndefined()) {
+        setCountSpinBox->setValue(item["set_count"].toInt());
+    } else {
+        qDebug() << "undefined";
+    }
+    QJsonArray arr = item["exercises"].toArray();
+    for(int i = 0; i < arr.size(); i++) {
+        qDebug() << "[" << i << "]" << arr[i].toObject()["name"].toString() << " time = " << arr[i].toObject()["time"].toInt();
+        ExerciseWidget* wdg = this->createExersise();
+        ExerciseStruct es;
+        es.name = arr[i].toObject()["name"].toString();
+        es.time = arr[i].toObject()["time"].toInt();
+        wdg->setData(es);
+    }
+    updateGrid();
 
 }

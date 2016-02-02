@@ -24,9 +24,8 @@ class CreateExerciseDialog : public QDialog
 public:
     explicit CreateExerciseDialog(QWidget *parent = 0);
     ~CreateExerciseDialog();
-    QString getTexturePath();
-    QString getExerciseData();
-    void loadExerciseData(const QString& data);
+    QByteArray getExerciseData();
+    void loadExerciseData(const QByteArray& data);
 signals:
 private:
     QGridLayout* exerciseLout;
@@ -37,6 +36,7 @@ private:
     QPushButton* addExerciseBtn;
     QLineEdit* nameEdit;
     void updateGrid();
+    ExerciseWidget* createExersise();
 
     void createConfirmButton(QBoxLayout*lout);
 public slots:
