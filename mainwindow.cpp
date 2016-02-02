@@ -125,14 +125,14 @@ void MainWindow::timerTick() {
     }else if (step == Step::GO) {
         step = Step::WORK;
         setPos = 1;
-        remainedTime = timePerEx;
+        remainedTime = selectedSet.exercise.at(0).time;
         elapsedTime = 0;
         setPos = 1;
         updateSet();
         exersiseLabel->setText(QString::fromUtf8("Марш"));
     } else {
         //6 min
-        if(elapsedTime == setCount*timePerEx*exercises.size()) {
+        if(elapsedTime == setCount*timePerEx) {
              exersiseLabel->setText(QString::fromUtf8("ГОТОВО"));
              updateTime();
              timer->stop();
@@ -140,19 +140,19 @@ void MainWindow::timerTick() {
         }
         if(remainedTime == 0) {
             exPos++;
-            if(exPos>=exercises.size()) {
+            if(exPos>=selectedSet.exercise.size()) {
                 exPos = 0;
                 setPos++;
             }
             qDebug() << " remained is sero";
-            remainedTime = timePerEx;
+            remainedTime = selectedSet.exercise.at(exPos).time;
             updateSet();
         }
 
-        if(remainedTime == timePerEx) {
+        if(remainedTime == selectedSet.exercise.at(exPos).time) {
             qDebug() << " remained is timePerEx";
-            exersiseLabel->setText(exercises.at(exPos));
-            qDebug() << " set " << exercises.at(exPos);
+            exersiseLabel->setText(selectedSet.exercise.at(exPos).name);
+            qDebug() << " set " << selectedSet.exercise.at(exPos).name;
         }
         updateTime();
         elapsedTime++;
@@ -195,6 +195,8 @@ void MainWindow::createExercise() {
         QFile jsonFile(path);
         jsonFile.open(QFile::WriteOnly);
         jsonFile.write(createExerciseDialog->getExerciseData());
+        jsonFile.flush();
+        scanDataAndUpdateMenu();
     }
 }
 
@@ -209,6 +211,13 @@ SetStruct MainWindow::loadExerciseData(const QString &file) {
 }
 
 void MainWindow::scanDataAndUpdateMenu() {
+    for(int i = 0; i < ass.size(); i++) {
+        exMenu->removeAction(ass[i].action);
+        disconnect(ass[i].action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
+        ass[i].action->deleteLater();
+    }
+    ass.clear();
+
     QDir dir(qApp->applicationDirPath());
     dir.cd("data");
     QFileInfoList list = dir.entryInfoList();
@@ -240,5 +249,10 @@ void MainWindow::actionTriggered() {
         }
     }
     setNameLabel->setText(selectedSet.name);
+    setCount = selectedSet.count;
+    timePerEx = 0;
+    for(int i = 0; i < selectedSet.exercise.size(); i++) {
+        timePerEx+=selectedSet.exercise.at(i).time;
+    }
     qDebug() << "selectedSet = " << selectedSet.name;
 }
