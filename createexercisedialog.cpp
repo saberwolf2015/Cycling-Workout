@@ -153,24 +153,35 @@ void CreateExerciseDialog::loadExerciseData(const QByteArray &data) {
     QJsonDocument doc;
     doc = QJsonDocument::fromJson(data);
     qDebug() << "readed " << doc.toJson();
-    QJsonObject item = doc.object();
-    qDebug() << " name = " << item["name"].toString();
-    qDebug() << " set_count = " << item["set_count"].toString();
-    nameEdit->setText(item["name"].toString());
+    SetStruct ss(doc);
+    /*
+    ss.name = item["name"].toString();
     if(!item["name"].isUndefined()) {
-        setCountSpinBox->setValue(item["set_count"].toInt());
+        ss.count = item["set_count"].toInt();
     } else {
         qDebug() << "undefined";
     }
     QJsonArray arr = item["exercises"].toArray();
     for(int i = 0; i < arr.size(); i++) {
         qDebug() << "[" << i << "]" << arr[i].toObject()["name"].toString() << " time = " << arr[i].toObject()["time"].toInt();
-        ExerciseWidget* wdg = this->createExersise();
         ExerciseStruct es;
         es.name = arr[i].toObject()["name"].toString();
         es.time = arr[i].toObject()["time"].toInt();
+        ss.exercise.push_back(es);
+    }*/
+    this->loadExerciseData(ss);
+    updateGrid();
+}
+
+void CreateExerciseDialog::loadExerciseData(const SetStruct &data) {
+    nameEdit->setText(data.name);
+    setCountSpinBox->setValue(data.count);
+    for(int i = 0; i < data.exercise.size(); i++) {
+        qDebug() << "[" << i << "]" << data.exercise[i].name << " time = " << data.exercise[i].time;
+        ExerciseWidget* wdg = this->createExersise();
+        ExerciseStruct es;
+        es.name = data.exercise[i].name;
+        es.time = data.exercise[i].time;
         wdg->setData(es);
     }
-    updateGrid();
-
 }

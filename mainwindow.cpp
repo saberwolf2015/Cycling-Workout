@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QApplication> //qApp
 #include <QFile>
+#include <QFileInfoList>
 #include "createexercisedialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -50,9 +51,15 @@ MainWindow::MainWindow(QWidget *parent)
     timeLout->addWidget(setLabel);
     timeLout->addWidget(remainLabel);
 
+    setNameLabel = new QLabel(this);
+    setNameLabel->setText(QString::fromUtf8("Выберите упражнение"));
+    setNameLabel->setFont(serifFont);
+    setNameLabel->setAlignment(Qt::AlignCenter);
+
 
     exersiseLabel = new QLabel(centerWidget);
     mainLout->addLayout(timeLout);
+    mainLout->addWidget(setNameLabel);
     mainLout->addWidget(exersiseLabel);
     mainLout->addStretch();
     QFont bigFont("Times", 38, QFont::Bold);
@@ -68,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setCentralWidget(centerWidget);
     QMenuBar* menuBar = createMainMenu(this);
+    scanDataAndUpdateMenu();
     this->setMenuBar(menuBar);
     this->setWindowTitle(QString::fromUtf8("Training"));
     this->resize(640,480);
@@ -89,11 +97,14 @@ QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
     pMenu->addAction(QString::fromUtf8("Создать упраженение"),this,SLOT(createExercise()));
     pMenu->addAction(QString::fromUtf8("Загрузка упраженения"),this,SLOT(loadExercise()));
     pMenu->addAction(QString::fromUtf8("Запуск"),this,SLOT(startPressed()));
+    exMenu = new QMenu(QString::fromUtf8("Упражнения"));//create menu file
+
     QMenu *pMenu3 = new QMenu(QString::fromUtf8("Справка"));
     pMenu3->addAction(QString::fromUtf8("Вызов справки"));
     pMenu3->addSeparator();
     pMenu3->addAction(QString::fromUtf8("&О программе"));
     mnuBar->addMenu(pMenu);
+    mnuBar->addMenu(exMenu);
     mnuBar->addMenu(pMenu3);
     mnuBar->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     return mnuBar;
@@ -164,7 +175,9 @@ void MainWindow::updateTime() {
 
 void MainWindow::loadExercise() {
     QJsonObject data;
-    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть упражнение"),qApp->applicationDirPath()+"/data/");
+    QDir dir(qApp->applicationDirPath());
+    dir.cd("data");
+    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть упражнение"),dir.absolutePath());
     qDebug() << " path = " << path;
     QFile jsonFile(path);
     jsonFile.open(QFile::ReadOnly);
@@ -176,9 +189,56 @@ void MainWindow::createExercise() {
     if(createExerciseDialog->exec()) {
         qDebug() << "accept";
         qDebug() << createExerciseDialog->getExerciseData();
-        QString path = QFileDialog::getSaveFileName(this,QString::fromUtf8("Сохранить упражнение"),qApp->applicationDirPath()+"/data/");
+        QDir dir(qApp->applicationDirPath());
+        dir.cd("data");
+        QString path = QFileDialog::getSaveFileName(this,QString::fromUtf8("Сохранить упражнение"),dir.absolutePath());
         QFile jsonFile(path);
         jsonFile.open(QFile::WriteOnly);
         jsonFile.write(createExerciseDialog->getExerciseData());
     }
+}
+
+SetStruct MainWindow::loadExerciseData(const QString &file) {
+    QFile jsonFile(file);
+    jsonFile.open(QFile::ReadOnly);
+    QJsonDocument doc;
+    doc = QJsonDocument::fromJson(jsonFile.readAll());
+    qDebug() << "readed " << doc.toJson();
+    SetStruct ss(doc);
+    return ss;
+}
+
+void MainWindow::scanDataAndUpdateMenu() {
+    QDir dir(qApp->applicationDirPath());
+    dir.cd("data");
+    QFileInfoList list = dir.entryInfoList();
+    for(int i = 0; i < list.size(); i++) {
+        qDebug() << "[" << i << "]" << list.at(i).absoluteFilePath();
+        if(list.at(i).isFile() && list.at(i).suffix().compare("json") == 0) {
+            SetStruct ss = this->loadExerciseData(list.at(i).absoluteFilePath());
+            if(ss.name.length() > 0) {
+                QAction *action = exMenu->addAction(ss.name);
+                connect(action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
+                ActionSetStruct tmp;
+                tmp.action = action;
+                tmp.set = ss;
+                ass.push_back(tmp);
+
+            }
+        }
+    }
+
+}
+
+void MainWindow::actionTriggered() {
+    qDebug() << __PRETTY_FUNCTION__;
+    QAction* act =  (qobject_cast<QAction*>(sender()));
+    for(int i = 0; i < ass.size(); i++) {
+        if(ass.at(i).action == act) {
+            selectedSet = ass.at(i).set;
+            break;
+        }
+    }
+    setNameLabel->setText(selectedSet.name);
+    qDebug() << "selectedSet = " << selectedSet.name;
 }

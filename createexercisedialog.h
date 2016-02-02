@@ -16,6 +16,7 @@ class QPushButton;
 class QLineEdit;
 class ExerciseWidget;
 class QGridLayout;
+class SetStruct;
 
 
 class CreateExerciseDialog : public QDialog
@@ -26,6 +27,7 @@ public:
     ~CreateExerciseDialog();
     QByteArray getExerciseData();
     void loadExerciseData(const QByteArray& data);
+    void loadExerciseData(const SetStruct& data);
 signals:
 private:
     QGridLayout* exerciseLout;

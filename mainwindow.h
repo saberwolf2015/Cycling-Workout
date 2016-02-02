@@ -2,22 +2,27 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "struct.h"
 
 class QMenuBar;
 class QLabel;
 class QTimer;
 class CreateExerciseDialog;
-enum class Step {
-    READY,
-    STEADY,
-    GO,
-    WORK
-};
+class QMenu;
+
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    /**
+     * Структура чтобы хранить связь между меню и сетами
+     * @author Чернопятов А.В.
+     * @date 2015.02.02
+     */
+    struct ActionSetStruct {
+        QAction* action;
+        SetStruct set;
+    };
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -27,7 +32,13 @@ public slots:
     void timerTick();
     void loadExercise();
     void createExercise();
+    SetStruct loadExerciseData(const QString &file);
+    void actionTriggered();
 private:
+    SetStruct selectedSet;
+    QVector<ActionSetStruct> ass;
+    QMenu *exMenu;
+    void scanDataAndUpdateMenu();
     CreateExerciseDialog* createExerciseDialog;
     QVector<QString> exercises;
     int exPos;
@@ -38,6 +49,7 @@ private:
     QTimer *timer;
     QMenuBar* createMainMenu(QWidget* wdg);//create main Menu
     QLabel* timerLabel;
+    QLabel* setNameLabel;
     QLabel* setLabel;
     QLabel* remainLabel;
     QLabel* exersiseLabel;
