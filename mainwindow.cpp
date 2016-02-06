@@ -248,8 +248,12 @@ void MainWindow::actionTriggered() {
             break;
         }
     }
+    for(int i = 0; i < selectedSet.exercise.size(); i++) {
+        qDebug() << "[" << i << "] = " << selectedSet.exercise.at(i).name;
+    }
     setNameLabel->setText(selectedSet.name);
     setCount = selectedSet.count;
+    exPos = 0;
     timePerEx = 0;
     for(int i = 0; i < selectedSet.exercise.size(); i++) {
         timePerEx+=selectedSet.exercise.at(i).time;
