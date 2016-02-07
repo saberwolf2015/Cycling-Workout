@@ -23,6 +23,15 @@ class MainWindow : public QMainWindow
         QAction* action;
         SetStruct set;
     };
+    /**
+     * Структура чтобы хранить связь между меню и языками
+     * @author Чернопятов А.В.
+     * @date 2015.02.02
+     */
+    struct ActionLanguageStruct {
+        QAction* action;
+        LanguageStruct lang;
+    };
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -33,17 +42,27 @@ public slots:
     void loadExercise();
     void createExercise();
     SetStruct loadExerciseData(const QString &file);
+    LanguageStruct loadLanguageData(const QString &file);
     void actionTriggered();
 private:
-    QVector<LanguageStruct> languages; /*! array of translation */
+    void updateLanguage();
+    void writeDataToFile(const QString& file, const QByteArray&data);
+    QVector<ActionLanguageStruct> languages; /*! array of translation */
     LanguageStruct currentLanguage;/*! current translation of program */
     ConfigStruct configStruct;/*! config */
     void loadLanguages();
     void loadConfig();
     SetStruct selectedSet; /*! selected training set */
     QVector<ActionSetStruct> ass; /*! all training sets */
+    QMenu *fileMenu;/*! file menu*/
+    QAction *createEx;
+    QAction *loadEx;
+    QAction *runEx;
     QMenu *exMenu; /*! menu with exercices*/
     QMenu* langMenu; /*! menu with languages */
+    QMenu *helpMenu; /*! help menu */
+    QAction *helpTrigger;
+    QAction *helpAbout;
     void scanDataAndUpdateMenu();
     CreateExerciseDialog* createExerciseDialog;
     int exPos;

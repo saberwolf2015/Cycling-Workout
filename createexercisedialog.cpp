@@ -46,7 +46,9 @@ void CreateExerciseDialog::setLanguage(const LanguageStruct &lang) {
     addExerciseBtn->setText(currentLanguage.words["CREATE_EXERCISE_DLG_ADD_EXERCISE"]);
     this->btnOk->setText(currentLanguage.words["BTN_OK"]);
     this->btnCancel->setText(currentLanguage.words["BTN_CANCEL"]);
-
+    for(int i = 0; i < exersiseVector.size(); i++) {
+        exersiseVector[i]->setLanguage(lang);
+    }
 }
 
 void CreateExerciseDialog::createBaseSettings(QBoxLayout*lout) {

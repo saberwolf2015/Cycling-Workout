@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     timePerEx = 30;//30;
-    setCount = 4;
+    setCount = 0;
     setPos = 0;
     elapsedTime = 0;
     remainedTime = 0;
@@ -76,7 +76,40 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(currentLanguage.words["MW_TITLE"]);
     this->resize(640,480);
     loadConfig();
+    loadLanguages();
+    for(int i = 0; i < languages.size(); i++) {
+        if(configStruct.lang.compare(languages.at(i).lang.shorEnName) == 0) {
+            qDebug() << "file menu titile = " << fileMenu->title() << " cureLAng = " << currentLanguage.words["MENU_FILE"] << " languages meun_file = " << languages.at(i).lang.words["MENU_FILE"];
+            currentLanguage = languages.at(i).lang;
+            languages[i].action->setChecked(true);
+            qDebug() << "file menu titile = " << fileMenu->title() << " cureLAng = " << currentLanguage.words["MENU_FILE"];
+            qDebug() << " config lang =  " << configStruct.lang;
+            updateLanguage();
+            break;
+        }
+    }
+    /*
+    qDebug() << " try save lang";
 
+    QJsonDocument doc;
+    QVariantMap map;
+    map.insert("shorEnName", currentLanguage.shorEnName);
+    map.insert("fullName",currentLanguage.fullName);
+    QMap<QString, QString>::const_iterator iter = currentLanguage.words.constBegin();
+    while (iter != currentLanguage.words.constEnd()) {
+        qDebug() << " ket = " << iter.key() << " val = " << iter.value();
+        map.insert(iter.key(),iter.value());
+        iter++;
+    }
+    qDebug() << "map done";
+    QJsonObject json = QJsonObject::fromVariantMap(map);
+
+    //obj["name"]=nameEdit->text();
+    doc.setObject(json);
+    qDebug() << " " << doc.toJson();
+
+    writeDataToFile("ru.json", doc.toJson());
+    */
 }
 
 MainWindow::~MainWindow()
@@ -90,21 +123,21 @@ void MainWindow::updateSet() {
 QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
     QMenuBar *mnuBar = new QMenuBar(wdg);//creating menu bar
 
-    QMenu *pMenu = new QMenu(currentLanguage.words["MENU_FILE"]);//create menu file
-    pMenu->addAction(currentLanguage.words["MENU_CREATE_EXERCISE"],this,SLOT(createExercise()));
-    pMenu->addAction(currentLanguage.words["MENU_LOAD_EXERCISE"],this,SLOT(loadExercise()));
-    pMenu->addAction(currentLanguage.words["MENU_RUN_EXERCISE"],this,SLOT(startPressed()));
+    fileMenu = new QMenu(currentLanguage.words["MENU_FILE"]);//create menu file
+    createEx = fileMenu->addAction(currentLanguage.words["MENU_CREATE_EXERCISE"],this,SLOT(createExercise()));
+    loadEx = fileMenu->addAction(currentLanguage.words["MENU_LOAD_EXERCISE"],this,SLOT(loadExercise()));
+    runEx = fileMenu->addAction(currentLanguage.words["MENU_RUN_EXERCISE"],this,SLOT(startPressed()));
     exMenu = new QMenu(currentLanguage.words["MENU_EXERCISE"]);//create menu file
     langMenu = new QMenu(currentLanguage.words["MENU_LANGUAGE"]);
 
-    QMenu *pMenu3 = new QMenu(currentLanguage.words["MENU_HELP"]);
-    pMenu3->addAction(currentLanguage.words["MENU_HELP_TRIGGER"]);
-    pMenu3->addSeparator();
-    pMenu3->addAction(currentLanguage.words["MENU_HELP_ABOUT"] );
-    mnuBar->addMenu(pMenu);
+    helpMenu = new QMenu(currentLanguage.words["MENU_HELP"]);
+    helpTrigger = helpMenu->addAction(currentLanguage.words["MENU_HELP_TRIGGER"]);
+    helpMenu->addSeparator();
+    helpAbout = helpMenu->addAction(currentLanguage.words["MENU_HELP_ABOUT"] );
+    mnuBar->addMenu(fileMenu);
     mnuBar->addMenu(exMenu);
     mnuBar->addMenu(langMenu);
-    mnuBar->addMenu(pMenu3);
+    mnuBar->addMenu(helpMenu);
     mnuBar->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     return mnuBar;
 }
@@ -191,12 +224,17 @@ void MainWindow::createExercise() {
         QDir dir(qApp->applicationDirPath());
         dir.cd("data");
         QString path = QFileDialog::getSaveFileName(this,currentLanguage.words["DLG_SAVE_EXERCISE"],dir.absolutePath());
-        QFile jsonFile(path);
-        jsonFile.open(QFile::WriteOnly);
-        jsonFile.write(createExerciseDialog->getExerciseData());
-        jsonFile.flush();
+        this->writeDataToFile(path,createExerciseDialog->getExerciseData());
+
         scanDataAndUpdateMenu();
     }
+}
+void MainWindow::writeDataToFile(const QString &file, const QByteArray &data) {
+    qDebug() << __func__ << "(" << file <<",data)";
+    QFile jsonFile(file);
+    jsonFile.open(QFile::WriteOnly);
+    jsonFile.write(data);
+    jsonFile.flush();
 }
 
 SetStruct MainWindow::loadExerciseData(const QString &file) {
@@ -207,6 +245,17 @@ SetStruct MainWindow::loadExerciseData(const QString &file) {
     qDebug() << "readed " << doc.toJson();
     SetStruct ss(doc);
     return ss;
+}
+
+LanguageStruct MainWindow::loadLanguageData(const QString &file) {
+    qDebug() << __func__ <<"(" << file << ")";
+    QFile jsonFile(file);
+    jsonFile.open(QFile::ReadOnly);
+    QJsonDocument doc;
+    doc = QJsonDocument::fromJson(jsonFile.readAll());
+    qDebug() << "readed " << doc.toJson();
+    LanguageStruct data(doc);
+    return data;
 }
 
 /**
@@ -226,27 +275,27 @@ void MainWindow::loadConfig() {
 
 void MainWindow::loadLanguages() {
     for(int i = 0; i < languages.size(); i++) {
-        exMenu->removeAction(ass[i].action);
-        disconnect(ass[i].action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
+        langMenu->removeAction(languages[i].action);
+        disconnect(languages[i].action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
         ass[i].action->deleteLater();
     }
-    ass.clear();
+    languages.clear();
 
     QDir dir(qApp->applicationDirPath());
-    dir.cd("data");
+    dir.cd("lang");
     QFileInfoList list = dir.entryInfoList();
     for(int i = 0; i < list.size(); i++) {
         qDebug() << "[" << i << "]" << list.at(i).absoluteFilePath();
         if(list.at(i).isFile() && list.at(i).suffix().compare("json") == 0) {
-            SetStruct ss = this->loadExerciseData(list.at(i).absoluteFilePath());
-            if(ss.name.length() > 0) {
-                QAction *action = exMenu->addAction(ss.name);
+            LanguageStruct data = this->loadLanguageData(list.at(i).absoluteFilePath());
+            if(data.fullName.length() > 0) {
+                QAction *action = langMenu->addAction(data.fullName);
+                action->setCheckable(true);
                 connect(action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
-                ActionSetStruct tmp;
+                ActionLanguageStruct tmp;
                 tmp.action = action;
-                tmp.set = ss;
-                ass.push_back(tmp);
-
+                tmp.lang = data;
+                languages.push_back(tmp);
             }
         }
     }
@@ -283,12 +332,15 @@ void MainWindow::scanDataAndUpdateMenu() {
 void MainWindow::actionTriggered() {
     qDebug() << __PRETTY_FUNCTION__;
     QAction* act =  (qobject_cast<QAction*>(sender()));
+    bool found = false;
     for(int i = 0; i < ass.size(); i++) {
         if(ass.at(i).action == act) {
             selectedSet = ass.at(i).set;
+            found  = true;
             break;
         }
     }
+    if(found) {
     for(int i = 0; i < selectedSet.exercise.size(); i++) {
         qDebug() << "[" << i << "] = " << selectedSet.exercise.at(i).name;
     }
@@ -300,4 +352,49 @@ void MainWindow::actionTriggered() {
         timePerEx+=selectedSet.exercise.at(i).time;
     }
     qDebug() << "selectedSet = " << selectedSet.name;
+    return;
+    }
+    found = false;
+    for(int i = 0; i < languages.size(); i++) {
+        languages[i].action->setChecked(false);
+        if(languages.at(i).action == act) {
+            qDebug() << " found lang " << languages.at(i).lang.shorEnName;
+            currentLanguage = languages.at(i).lang;
+            found  = true;
+            languages[i].action->setChecked(true);
+            //break;
+        }
+    }
+    if(found) {
+        updateLanguage();
+        configStruct.lang = currentLanguage.shorEnName;
+        QDir dir(qApp->applicationDirPath());
+        writeDataToFile(dir.filePath("config.json"), configStruct.toJson());
+    }
+}
+
+void MainWindow::updateLanguage() {
+    qDebug() << __func__;
+    if(selectedSet.name.length() == 0) {
+        setNameLabel->setText(currentLanguage.words["MW_NAME_LABEL"]);
+    }
+    updateSet();
+    exersiseLabel->setText(currentLanguage.words["MW_EXERCISE_LABEL"]);
+    this->setWindowTitle(currentLanguage.words["MW_TITLE"]);
+    fileMenu->setTitle(currentLanguage.words["MENU_FILE"]);
+    qDebug() << "file menu titile = " << fileMenu->title() << " cureLAng = " << currentLanguage.words["MENU_FILE"];
+    createEx->setText(currentLanguage.words["MENU_CREATE_EXERCISE"]);
+    loadEx->setText(currentLanguage.words["MENU_LOAD_EXERCISE"]);
+    runEx->setText(currentLanguage.words["MENU_RUN_EXERCISE"]);
+
+    exMenu->setTitle(currentLanguage.words["MENU_EXERCISE"]);
+
+    langMenu->setTitle(currentLanguage.words["MENU_LANGUAGE"]);
+
+    helpMenu->setTitle(currentLanguage.words["MENU_HELP"]);
+    helpTrigger->setText(currentLanguage.words["MENU_HELP_TRIGGER"]);
+    helpAbout->setText(currentLanguage.words["MENU_HELP_ABOUT"]);
+
+    createExerciseDialog->setLanguage(currentLanguage);
+
 }
