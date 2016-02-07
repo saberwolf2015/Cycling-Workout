@@ -7,6 +7,7 @@ class QLineEdit;
 class QSpinBox;
 class QGroupBox;
 class QPushButton;
+class QLabel;
 
 /**
  * Виджет для упраженения, хранит имя упраженения и время выполнения
@@ -22,10 +23,13 @@ public:
     ExerciseStruct getData();
     void setBoxTitle(const QString &data);
     void setData(const ExerciseStruct &data);
+    void setLanguage(const LanguageStruct& lang);
 signals:
 void removeMe();
 public slots:
 private:
+    LanguageStruct currentLanguage;
+    QLabel *nameLabel;
     QLineEdit* nameEdit;
     QSpinBox* timeSpinBox;
     QGroupBox* groupBox;

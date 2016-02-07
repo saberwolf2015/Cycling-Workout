@@ -13,22 +13,22 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
 
     QVBoxLayout* groupLout = new QVBoxLayout(groupBox);
 
-    groupBox->setTitle(QString::fromUtf8("Упражнение"));
+    groupBox->setTitle(currentLanguage.words["EXERCISE_WDG_EXERCISE"]);
     {
         QHBoxLayout*hlout = new QHBoxLayout();
-        QLabel*lbl = new QLabel(groupBox);
-        lbl->setText(QString::fromUtf8("Название: "));
+        nameLabel = new QLabel(groupBox);
+        nameLabel->setText(currentLanguage.words["EXERCISE_WDG_EXERCISE_NAME"] );
         nameEdit = new QLineEdit(groupBox);
-        nameEdit->setText(QString::fromUtf8("упраженение"));
-        hlout->addWidget(lbl);
+        nameEdit->setText(currentLanguage.words["EXERCISE_WDG_DEFAULT_EXERCISE_NAME"]);
+        hlout->addWidget(nameLabel);
         hlout->addWidget(nameEdit);
 
         groupLout->addLayout(hlout);
     }
     {
         timeSpinBox = new QSpinBox(groupBox);
-        timeSpinBox->setPrefix(QString::fromUtf8("Время упражнения: "));
-        timeSpinBox->setSuffix(QString::fromUtf8(" c"));
+        timeSpinBox->setPrefix(currentLanguage.words["EXERCISE_WDG_EXERCISE_TIME_PREFIX"]);
+        timeSpinBox->setSuffix(currentLanguage.words["EXERCISE_WDG_EXERCISE_TIME_SUFFIX"]);
         timeSpinBox->setMinimum(1);
         timeSpinBox->setValue(30);
         timeSpinBox->setMaximum(3600);
@@ -36,7 +36,7 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
     }
     {
         removeBtn = new QPushButton(groupBox);
-        removeBtn->setText(QString::fromUtf8("Удалить"));
+        removeBtn->setText(currentLanguage.words["BTN_DELETE"]);
         groupLout->addWidget(removeBtn);
         connect(removeBtn,SIGNAL(clicked()),SIGNAL(removeMe()));
     }
@@ -47,7 +47,24 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
 
 ExerciseWidget::~ExerciseWidget()
 {
+}
 
+/**
+ * set language for widget
+ * @param lang - words for set
+ * @author Чернопятов А.В.
+ * @date 2015.02.07
+ */
+void ExerciseWidget::setLanguage(const LanguageStruct &lang) {
+    currentLanguage = lang;
+    groupBox->setTitle(currentLanguage.words["EXERCISE_WDG_EXERCISE"]);
+    nameLabel->setText(currentLanguage.words["EXERCISE_WDG_EXERCISE_NAME"] );
+    if(nameEdit->text().length() == 0) {
+        nameEdit->setText(currentLanguage.words["EXERCISE_WDG_DEFAULT_EXERCISE_NAME"]);
+    }
+    timeSpinBox->setPrefix(currentLanguage.words["EXERCISE_WDG_EXERCISE_TIME_PREFIX"]);
+    timeSpinBox->setSuffix(currentLanguage.words["EXERCISE_WDG_EXERCISE_TIME_SUFFIX"]);
+    removeBtn->setText(currentLanguage.words["BTN_DELETE"]);
 }
 
 ExerciseStruct ExerciseWidget::getData() {

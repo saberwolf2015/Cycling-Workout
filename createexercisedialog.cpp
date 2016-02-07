@@ -33,11 +33,27 @@ CreateExerciseDialog::~CreateExerciseDialog()
 
 }
 
+/**
+ * set language for dialog
+ * @param lang - words for set
+ * @author Чернопятов А.В.
+ * @date 2015.02.07
+ */
+void CreateExerciseDialog::setLanguage(const LanguageStruct &lang) {
+    currentLanguage = lang;
+    nameLbl->setText(currentLanguage.words["CREATE_EXERCISE_DLG_CYCLE_NAME"]);
+    setCountSpinBox->setPrefix(currentLanguage.words["CREATE_EXERCISE_DLG_SET_COUNT"]);
+    addExerciseBtn->setText(currentLanguage.words["CREATE_EXERCISE_DLG_ADD_EXERCISE"]);
+    this->btnOk->setText(currentLanguage.words["BTN_OK"]);
+    this->btnCancel->setText(currentLanguage.words["BTN_CANCEL"]);
+
+}
+
 void CreateExerciseDialog::createBaseSettings(QBoxLayout*lout) {
     {
         QHBoxLayout* hlout = new QHBoxLayout();
-        QLabel* nameLbl = new QLabel(this);
-        nameLbl->setText(QString::fromUtf8("Название цикла"));
+        nameLbl = new QLabel(this);
+        nameLbl->setText(currentLanguage.words["CREATE_EXERCISE_DLG_CYCLE_NAME"]);
         hlout->addWidget(nameLbl);
         nameEdit = new QLineEdit(this);
         hlout->addWidget(nameEdit);
@@ -46,13 +62,13 @@ void CreateExerciseDialog::createBaseSettings(QBoxLayout*lout) {
     {
         QHBoxLayout* hlout = new QHBoxLayout();
         setCountSpinBox = new QSpinBox(this);
-        setCountSpinBox->setPrefix(QString::fromUtf8("Число сетов: "));
+        setCountSpinBox->setPrefix(currentLanguage.words["CREATE_EXERCISE_DLG_SET_COUNT"]);
         setCountSpinBox->setMinimum(1);
         setCountSpinBox->setMaximum(32);
         hlout->addWidget(setCountSpinBox);
 
         addExerciseBtn = new QPushButton(this);
-        addExerciseBtn->setText(QString::fromUtf8("Добавить упражнение"));
+        addExerciseBtn->setText(currentLanguage.words["CREATE_EXERCISE_DLG_ADD_EXERCISE"]);
         connect(addExerciseBtn,SIGNAL(clicked()),this,SLOT(pushButtonClicked()));
         hlout->addWidget(addExerciseBtn);
 
@@ -61,13 +77,13 @@ void CreateExerciseDialog::createBaseSettings(QBoxLayout*lout) {
 }
 
 void CreateExerciseDialog::createExerciseField(QBoxLayout *lout) {
-    exerciseLout = new QGridLayout(this);
+    exerciseLout = new QGridLayout();
     lout->addLayout(exerciseLout);
 
 }
 
 ExerciseWidget* CreateExerciseDialog::createExersise() {
-    QString title = QString::fromUtf8("Упраженение") + QString::number(exersiseVector.size()+1);
+    QString title = currentLanguage.words["CREATE_EXERCISE_DLG_EXERCISE"]+ QString::number(exersiseVector.size()+1);
     ExerciseWidget* wdg = new ExerciseWidget(this);
     connect(wdg,SIGNAL(removeMe()),this,SLOT(removeExercise()));
     wdg->setBoxTitle(title);
@@ -84,8 +100,8 @@ void CreateExerciseDialog::pushButtonClicked() {
 }
 
 void CreateExerciseDialog::createConfirmButton(QBoxLayout *lout) {
-    QPushButton *btnOk = new QPushButton(QString::fromUtf8("OK"),this);
-    QPushButton *btnCancel = new QPushButton(QString::fromUtf8("Отмена"),this);
+    btnOk = new QPushButton(currentLanguage.words["BTN_OK"],this);
+    btnCancel = new QPushButton(currentLanguage.words["BTN_CANCEL"],this);
     QHBoxLayout *hlout = new QHBoxLayout();
     hlout->addWidget(btnOk);
     hlout->addWidget(btnCancel);
@@ -110,7 +126,7 @@ void CreateExerciseDialog::removeExercise() {
 
 void CreateExerciseDialog::updateGrid() {
     for(int i = 0; i < exersiseVector.size(); i++) {
-         QString title = QString::fromUtf8("Упраженение") + QString::number(i+1);
+         QString title = currentLanguage.words["CREATE_EXERCISE_DLG_EXERCISE"] + QString::number(i+1);
          exersiseVector[i]->setBoxTitle(title);
          exerciseLout->removeWidget(exersiseVector[i]);
          int maxR = 3;

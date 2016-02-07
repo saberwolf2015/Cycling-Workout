@@ -23,10 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
     elapsedTime = 0;
     remainedTime = 0;
     exPos = 0;
-    exercises.clear();
-    exercises.push_back(QString::fromUtf8("Отжимание и выпригивание"));
-    exercises.push_back(QString::fromUtf8("Пресс"));
-    exercises.push_back(QString::fromUtf8("Бег с подниманием колен"));
 
     createExerciseDialog = new CreateExerciseDialog(this);
 
@@ -52,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     timeLout->addWidget(remainLabel);
 
     setNameLabel = new QLabel(this);
-    setNameLabel->setText(QString::fromUtf8("Выберите упражнение"));
+    setNameLabel->setText(currentLanguage.words["MW_NAME_LABEL"]);
     setNameLabel->setFont(serifFont);
     setNameLabel->setAlignment(Qt::AlignCenter);
 
@@ -68,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     updateSet();
     updateTime();
-    exersiseLabel->setText(QString::fromUtf8("Ожидание"));
+    exersiseLabel->setText(currentLanguage.words["MW_EXERCISE_LABEL"]);
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(timerTick()));
@@ -77,8 +73,9 @@ MainWindow::MainWindow(QWidget *parent)
     QMenuBar* menuBar = createMainMenu(this);
     scanDataAndUpdateMenu();
     this->setMenuBar(menuBar);
-    this->setWindowTitle(QString::fromUtf8("Training"));
+    this->setWindowTitle(currentLanguage.words["MW_TITLE"]);
     this->resize(640,480);
+    loadConfig();
 
 }
 
@@ -87,24 +84,26 @@ MainWindow::~MainWindow()
 
 }
 void MainWindow::updateSet() {
-    setLabel->setText(QString::fromUtf8("Сет ")+QString::number(setPos) + QString::fromUtf8(" из ") + QString::number(setCount));
+    setLabel->setText(currentLanguage.words["MW_SET_LABEL_SET"] +QString::number(setPos) + currentLanguage.words["MW_SET_LABEL_FROM"] + QString::number(setCount));
 }
 
 QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
     QMenuBar *mnuBar = new QMenuBar(wdg);//creating menu bar
 
-    QMenu *pMenu = new QMenu(QString::fromUtf8("Файл"));//create menu file
-    pMenu->addAction(QString::fromUtf8("Создать упраженение"),this,SLOT(createExercise()));
-    pMenu->addAction(QString::fromUtf8("Загрузка упраженения"),this,SLOT(loadExercise()));
-    pMenu->addAction(QString::fromUtf8("Запуск"),this,SLOT(startPressed()));
-    exMenu = new QMenu(QString::fromUtf8("Упражнения"));//create menu file
+    QMenu *pMenu = new QMenu(currentLanguage.words["MENU_FILE"]);//create menu file
+    pMenu->addAction(currentLanguage.words["MENU_CREATE_EXERCISE"],this,SLOT(createExercise()));
+    pMenu->addAction(currentLanguage.words["MENU_LOAD_EXERCISE"],this,SLOT(loadExercise()));
+    pMenu->addAction(currentLanguage.words["MENU_RUN_EXERCISE"],this,SLOT(startPressed()));
+    exMenu = new QMenu(currentLanguage.words["MENU_EXERCISE"]);//create menu file
+    langMenu = new QMenu(currentLanguage.words["MENU_LANGUAGE"]);
 
-    QMenu *pMenu3 = new QMenu(QString::fromUtf8("Справка"));
-    pMenu3->addAction(QString::fromUtf8("Вызов справки"));
+    QMenu *pMenu3 = new QMenu(currentLanguage.words["MENU_HELP"]);
+    pMenu3->addAction(currentLanguage.words["MENU_HELP_TRIGGER"]);
     pMenu3->addSeparator();
-    pMenu3->addAction(QString::fromUtf8("&О программе"));
+    pMenu3->addAction(currentLanguage.words["MENU_HELP_ABOUT"] );
     mnuBar->addMenu(pMenu);
     mnuBar->addMenu(exMenu);
+    mnuBar->addMenu(langMenu);
     mnuBar->addMenu(pMenu3);
     mnuBar->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     return mnuBar;
@@ -118,10 +117,10 @@ void MainWindow::startPressed() {
 void MainWindow::timerTick() {
     if(step == Step::READY) {
         step = Step::STEADY;
-        exersiseLabel->setText(QString::fromUtf8("Настарт"));
+        exersiseLabel->setText(currentLanguage.words["STEP_READY"]);
     } else if (step == Step::STEADY) {
         step = Step::GO;
-        exersiseLabel->setText(QString::fromUtf8("Внимание"));
+        exersiseLabel->setText(currentLanguage.words["STEP_STEADY"]);
     }else if (step == Step::GO) {
         step = Step::WORK;
         setPos = 1;
@@ -129,11 +128,11 @@ void MainWindow::timerTick() {
         elapsedTime = 0;
         setPos = 1;
         updateSet();
-        exersiseLabel->setText(QString::fromUtf8("Марш"));
+        exersiseLabel->setText(currentLanguage.words["STEP_GO"]);
     } else {
         //6 min
         if(elapsedTime == setCount*timePerEx) {
-             exersiseLabel->setText(QString::fromUtf8("ГОТОВО"));
+             exersiseLabel->setText(currentLanguage.words["STEP_FINISH"] );
              updateTime();
              timer->stop();
              return;
@@ -177,7 +176,7 @@ void MainWindow::loadExercise() {
     QJsonObject data;
     QDir dir(qApp->applicationDirPath());
     dir.cd("data");
-    QString path = QFileDialog::getOpenFileName(this,QString::fromUtf8("Открыть упражнение"),dir.absolutePath());
+    QString path = QFileDialog::getOpenFileName(this,currentLanguage.words["DLG_OPEN_EXERCISE"],dir.absolutePath());
     qDebug() << " path = " << path;
     QFile jsonFile(path);
     jsonFile.open(QFile::ReadOnly);
@@ -191,7 +190,7 @@ void MainWindow::createExercise() {
         qDebug() << createExerciseDialog->getExerciseData();
         QDir dir(qApp->applicationDirPath());
         dir.cd("data");
-        QString path = QFileDialog::getSaveFileName(this,QString::fromUtf8("Сохранить упражнение"),dir.absolutePath());
+        QString path = QFileDialog::getSaveFileName(this,currentLanguage.words["DLG_SAVE_EXERCISE"],dir.absolutePath());
         QFile jsonFile(path);
         jsonFile.open(QFile::WriteOnly);
         jsonFile.write(createExerciseDialog->getExerciseData());
@@ -208,6 +207,49 @@ SetStruct MainWindow::loadExerciseData(const QString &file) {
     qDebug() << "readed " << doc.toJson();
     SetStruct ss(doc);
     return ss;
+}
+
+/**
+ *
+ * @date 2015.02.07
+ */
+void MainWindow::loadConfig() {
+    QDir dir(qApp->applicationDirPath());
+    //dir.cd("data");
+    QFile jsonFile(dir.filePath("config.json"));
+    jsonFile.open(QFile::ReadOnly);
+    QJsonDocument doc;
+    doc = QJsonDocument::fromJson(jsonFile.readAll());
+    qDebug() << "readed " << doc.toJson();
+    configStruct = ConfigStruct(doc);
+}
+
+void MainWindow::loadLanguages() {
+    for(int i = 0; i < languages.size(); i++) {
+        exMenu->removeAction(ass[i].action);
+        disconnect(ass[i].action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
+        ass[i].action->deleteLater();
+    }
+    ass.clear();
+
+    QDir dir(qApp->applicationDirPath());
+    dir.cd("data");
+    QFileInfoList list = dir.entryInfoList();
+    for(int i = 0; i < list.size(); i++) {
+        qDebug() << "[" << i << "]" << list.at(i).absoluteFilePath();
+        if(list.at(i).isFile() && list.at(i).suffix().compare("json") == 0) {
+            SetStruct ss = this->loadExerciseData(list.at(i).absoluteFilePath());
+            if(ss.name.length() > 0) {
+                QAction *action = exMenu->addAction(ss.name);
+                connect(action,SIGNAL(triggered()),this,SLOT(actionTriggered()));
+                ActionSetStruct tmp;
+                tmp.action = action;
+                tmp.set = ss;
+                ass.push_back(tmp);
+
+            }
+        }
+    }
 }
 
 void MainWindow::scanDataAndUpdateMenu() {
@@ -236,7 +278,6 @@ void MainWindow::scanDataAndUpdateMenu() {
             }
         }
     }
-
 }
 
 void MainWindow::actionTriggered() {

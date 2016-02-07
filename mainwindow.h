@@ -35,12 +35,17 @@ public slots:
     SetStruct loadExerciseData(const QString &file);
     void actionTriggered();
 private:
-    SetStruct selectedSet;
-    QVector<ActionSetStruct> ass;
-    QMenu *exMenu;
+    QVector<LanguageStruct> languages; /*! array of translation */
+    LanguageStruct currentLanguage;/*! current translation of program */
+    ConfigStruct configStruct;/*! config */
+    void loadLanguages();
+    void loadConfig();
+    SetStruct selectedSet; /*! selected training set */
+    QVector<ActionSetStruct> ass; /*! all training sets */
+    QMenu *exMenu; /*! menu with exercices*/
+    QMenu* langMenu; /*! menu with languages */
     void scanDataAndUpdateMenu();
     CreateExerciseDialog* createExerciseDialog;
-    QVector<QString> exercises;
     int exPos;
     void updateSet();
     void updateTime();

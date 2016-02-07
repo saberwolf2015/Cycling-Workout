@@ -9,6 +9,7 @@
  */
 
 #include <QDialog>
+#include "struct.h"
 class QSpinBox;
 class QLabel;
 class QBoxLayout;
@@ -16,7 +17,8 @@ class QPushButton;
 class QLineEdit;
 class ExerciseWidget;
 class QGridLayout;
-class SetStruct;
+//struct SetStruct;
+//struct LanguageStruct;
 
 
 class CreateExerciseDialog : public QDialog
@@ -28,8 +30,10 @@ public:
     QByteArray getExerciseData();
     void loadExerciseData(const QByteArray& data);
     void loadExerciseData(const SetStruct& data);
+    void setLanguage(const LanguageStruct& lang);
 signals:
 private:
+    LanguageStruct currentLanguage;
     QGridLayout* exerciseLout;
     QVector<ExerciseWidget*> exersiseVector;
     void createBaseSettings(QBoxLayout*lout);
@@ -37,6 +41,9 @@ private:
     QSpinBox* setCountSpinBox;
     QPushButton* addExerciseBtn;
     QLineEdit* nameEdit;
+    QLabel* nameLbl;
+    QPushButton *btnOk;
+    QPushButton *btnCancel;
     void updateGrid();
     ExerciseWidget* createExersise();
 
