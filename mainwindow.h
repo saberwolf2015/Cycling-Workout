@@ -41,46 +41,97 @@ public slots:
     void timerTick();
     void loadExercise();
     void createExercise();
-    SetStruct loadExerciseData(const QString &file);
-    LanguageStruct loadLanguageData(const QString &file);
     void actionTriggered();
 private:
+    /**
+     * Загружаем сет из файла
+     * @param file путь к файлу
+     * @return структура с сетом
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
+    SetStruct loadExerciseData(const QString &file);
+    /**
+     * Загружаем язык из файла
+     * @param file путь к файлу
+     * @return структура с языком
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
+    LanguageStruct loadLanguageData(const QString &file);
+    /**
+     * Обновляем везде перевод текстов
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void updateLanguage();
+    /**
+     * Записываем данные в файл
+     * @param file путь к файлу
+     * @param data данные для записи
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void writeDataToFile(const QString& file, const QByteArray&data);
     QVector<ActionLanguageStruct> languages; /*! array of translation */
     LanguageStruct currentLanguage;/*! current translation of program */
     ConfigStruct configStruct;/*! config */
+    /**
+     * Загружаем набор языков
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void loadLanguages();
+    /**
+     * Загружаем конфиг
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void loadConfig();
     SetStruct selectedSet; /*! selected training set */
     QVector<ActionSetStruct> ass; /*! all training sets */
     QMenu *fileMenu;/*! file menu*/
-    QAction *createEx;
-    QAction *loadEx;
-    QAction *runEx;
-    QMenu *exMenu; /*! menu with exercices*/
+    QAction *createEx;/*! create exercise submenu */
+    QAction *loadEx;/*! load exercise submenu */
+    QAction *runEx;/*! run exercise submenu */
+    QMenu *exMenu; /*! menu with exercises*/
     QMenu* langMenu; /*! menu with languages */
     QMenu *helpMenu; /*! help menu */
-    QAction *helpTrigger;
-    QAction *helpAbout;
+    QAction *helpTrigger;/*! help trigger submenu */
+    QAction *helpAbout;/*! about submenu */
+    /**
+     * Обновляем пункт меню с сетами
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void scanDataAndUpdateMenu();
     CreateExerciseDialog* createExerciseDialog;
-    int exPos;
+    int exPos;/*! position in exercise array*/
+    /**
+     * Обновляем текст с сетом
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void updateSet();
+    /**
+     * Обновляем текст со временем
+     * @author Чернопятов А.В.
+     * @date 2015.02.07
+     */
     void updateTime();
-    int timePerEx;
-    int setCount;
+    int timePerEx;/*! time per current exercise */
+    int setCount;/*! count of set */
     QTimer *timer;
     QMenuBar* createMainMenu(QWidget* wdg);//create main Menu
-    QLabel* timerLabel;
-    QLabel* setNameLabel;
-    QLabel* setLabel;
-    QLabel* remainLabel;
-    QLabel* exersiseLabel;
+    QLabel* timerLabel;/*! total time label */
+    QLabel* setNameLabel; /*! name of set label */
+    QLabel* setLabel; /*! label with from _ to _ set count */
+    QLabel* remainLabel; /*! remained exercise time label */
+    QLabel* exersiseLabel; /*! label with current exercise name */
     int elapsedTime;
     int remainedTime;
-    int setPos;
-    Step step;
+    int setPos; /*! current set number */
+    Step step;  /*! current step */
 };
 
 #endif // MAINWINDOW_H

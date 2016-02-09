@@ -272,7 +272,11 @@ void MainWindow::loadConfig() {
     qDebug() << "readed " << doc.toJson();
     configStruct = ConfigStruct(doc);
 }
-
+/**
+ * Загружаем набор языков
+ * @author Чернопятов А.В.
+ * @date 2015.02.07
+ */
 void MainWindow::loadLanguages() {
     for(int i = 0; i < languages.size(); i++) {
         langMenu->removeAction(languages[i].action);
