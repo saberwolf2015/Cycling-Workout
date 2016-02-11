@@ -108,7 +108,7 @@ QMenuBar* MainWindow::createMainMenu(QWidget* wdg) {
     helpMenu = new QMenu(currentLanguage.words["MENU_HELP"]);
     helpTrigger = helpMenu->addAction(currentLanguage.words["MENU_HELP_TRIGGER"]);
     helpMenu->addSeparator();
-    helpAbout = helpMenu->addAction(currentLanguage.words["MENU_HELP_ABOUT"] );
+    helpAbout = helpMenu->addAction(currentLanguage.words["MENU_HELP_ABOUT"], this,SLOT(actionTriggered()));
     mnuBar->addMenu(fileMenu);
     mnuBar->addMenu(exMenu);
     mnuBar->addMenu(langMenu);
@@ -343,6 +343,10 @@ void MainWindow::actionTriggered() {
         configStruct.lang = currentLanguage.shorEnName;
         QDir dir(qApp->applicationDirPath());
         writeDataToFile(dir.filePath("config.json"), configStruct.toJson());
+    }
+    if(act == helpAbout) {
+        qDebug() << "about";
+        QApplication::aboutQt();
     }
 }
 
