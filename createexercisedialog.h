@@ -17,8 +17,7 @@ class QPushButton;
 class QLineEdit;
 class ExerciseWidget;
 class QGridLayout;
-//struct SetStruct;
-//struct LanguageStruct;
+
 
 
 class CreateExerciseDialog : public QDialog
@@ -28,7 +27,17 @@ public:
     explicit CreateExerciseDialog(QWidget *parent = 0);
     ~CreateExerciseDialog();
     QByteArray getExerciseData();
+    /**
+     * Грузим данные упражнения из массива байт
+     * @author Чернопятов А.В.
+     * @date 2015.02.02
+     */
     void loadExerciseData(const QByteArray& data);
+    /**
+     * Грузим данные упражнения из структуры
+     * @author Чернопятов А.В.
+     * @date 2015.02.02
+     */
     void loadExerciseData(const SetStruct& data);
     void setLanguage(const LanguageStruct& lang);
 signals:

@@ -15,12 +15,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariantMap>
-//#include <QVBoxLayout>
-//#include <QHBoxLayout>
+
 
 CreateExerciseDialog::CreateExerciseDialog(QWidget *parent) : QDialog(parent)
 {
-    qDebug() << __func__;
     QVBoxLayout* mainLout = new QVBoxLayout(this);
     createBaseSettings(mainLout);
     createExerciseField(mainLout);
@@ -117,9 +115,7 @@ void CreateExerciseDialog::removeExercise() {
        ExerciseWidget* wdg =  (qobject_cast<ExerciseWidget*>(sender()));
        disconnect(wdg,SIGNAL(removeMe()),this,SLOT(removeExercise()));
        exerciseLout->removeWidget(wdg);
-       qDebug() << "pre remove was" << exersiseVector.size();
        exersiseVector.removeOne(wdg);
-       qDebug() << "after remove was" << exersiseVector.size();
        wdg->deleteLater();
 
        updateGrid();
@@ -146,7 +142,6 @@ QByteArray CreateExerciseDialog::getExerciseData() {
     map.insert("name", nameEdit->text());
     map.insert("set_count",setCountSpinBox->value());
     QVariantMap step;
-    //QJsonArray arr;
     QVariantList lst;
     ExerciseStruct es;
     for(int i = 0; i< exersiseVector.size(); i++) {
@@ -172,21 +167,6 @@ void CreateExerciseDialog::loadExerciseData(const QByteArray &data) {
     doc = QJsonDocument::fromJson(data);
     qDebug() << "readed " << doc.toJson();
     SetStruct ss(doc);
-    /*
-    ss.name = item["name"].toString();
-    if(!item["name"].isUndefined()) {
-        ss.count = item["set_count"].toInt();
-    } else {
-        qDebug() << "undefined";
-    }
-    QJsonArray arr = item["exercises"].toArray();
-    for(int i = 0; i < arr.size(); i++) {
-        qDebug() << "[" << i << "]" << arr[i].toObject()["name"].toString() << " time = " << arr[i].toObject()["time"].toInt();
-        ExerciseStruct es;
-        es.name = arr[i].toObject()["name"].toString();
-        es.time = arr[i].toObject()["time"].toInt();
-        ss.exercise.push_back(es);
-    }*/
     this->loadExerciseData(ss);
     updateGrid();
 }

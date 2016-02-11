@@ -65,25 +65,11 @@ struct LanguageStruct {
         words["BTN_CANCEL"] = QString::fromUtf8("Отмена");
         words["BTN_DELETE"] = QString::fromUtf8("Удалить");
     }
-/*
-    LanguageStruct(const LanguageStruct &data) {
-        this->shorEnName = data.shorEnName;
-        this->fullName = data.fullName;
-        //this->words = data.words;
-        this->words.clear();
-        QMap<QString, QString>::const_iterator iter = data.words.constBegin();
-        while (iter != data.words.constEnd()) {
-            this->words[iter.key()] = iter.value();
-            iter++;
-        }
-    }
-*/
     LanguageStruct(QJsonDocument &doc) : LanguageStruct() {
         qDebug() <<" wtf";
         QJsonObject item = doc.object();
         if(item.contains("shorEnName")) {
             this->shorEnName = item["shorEnName"].toString();
-            qDebug() << " wtf shorEnName = " << this->shorEnName;
         } else {
             qDebug() << "shorEnName undefined";
         }
@@ -92,14 +78,10 @@ struct LanguageStruct {
         } else {
             qDebug() << "fullName undefined";
         }
-        qDebug() << "LanguageStruct(QJsonDocument &doc) words size = " << this->words.size();
         QMap<QString, QString>::const_iterator iter = this->words.constBegin();
         while (iter != this->words.constEnd()) {
-            qDebug() << __func__ << " zxc " <<iter.key() << ": " << iter.value();// << " set to " << item[iter.key()].toString();
-            qDebug() << __func__ << " zxc contains " << iter.key() << " = " << (item.contains(iter.key())) << " = " << item[iter.key()].toString();
             if(item.contains(iter.key())) {
                 words[iter.key()] = item[iter.key()].toString();
-                qDebug() << " set To " << item[iter.key()].toString();
             }
             iter++;
         }
@@ -159,8 +141,6 @@ struct SetStruct {
     }
     SetStruct(QJsonDocument &doc) {
         QJsonObject item = doc.object();
-        qDebug() << " name = " << item["name"].toString();
-        qDebug() << " set_count = " << item["set_count"].toString();
         this->name = item["name"].toString();
         if(item.contains("name")) {
             this->count = item["set_count"].toInt();
