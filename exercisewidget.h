@@ -25,16 +25,20 @@ public:
     void setData(const ExerciseStruct &data);
     void setLanguage(const LanguageStruct& lang);
 signals:
+/**
+ * У виджета нажали кнопку удалить
+ * @author Чернопятов А.В.
+ * @date 2015.02.02
+ */
 void removeMe();
 public slots:
 private:
-    LanguageStruct currentLanguage;
-    QLabel *nameLabel;
-    QLineEdit* nameEdit;
-    QSpinBox* timeSpinBox;
-    QGroupBox* groupBox;
-    QPushButton* removeBtn;
-
+    LanguageStruct currentLanguage;/*! widget translation language */
+    QLabel *nameLabel; /*! label with exercise name */
+    QLineEdit* nameEdit;/*! line edit for exercise name */
+    QSpinBox* timeSpinBox; /*! spinbox for time per exercise */
+    QGroupBox* groupBox; /*! group box around elements */
+    QPushButton* removeBtn; /*! button for remove widget */
 };
 
 #endif // EXERCISEWIDGET_H
