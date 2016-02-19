@@ -1,3 +1,6 @@
+// Copyright (c) 2016 Tchernopyatov Alexey. Contacts: alexey@tchernopyatov.com
+// Under MIT license, view LICENSE.txt
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
