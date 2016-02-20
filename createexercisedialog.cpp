@@ -88,6 +88,7 @@ void CreateExerciseDialog::createExerciseField(QBoxLayout *lout) {
 ExerciseWidget* CreateExerciseDialog::createExersise() {
     QString title = currentLanguage.words["CREATE_EXERCISE_DLG_EXERCISE"]+ QString::number(exersiseVector.size()+1);
     ExerciseWidget* wdg = new ExerciseWidget(this);
+    wdg->setLanguage(currentLanguage);
     connect(wdg,SIGNAL(removeMe()),this,SLOT(removeExercise()));
     wdg->setBoxTitle(title);
     exersiseVector.push_back(wdg);
