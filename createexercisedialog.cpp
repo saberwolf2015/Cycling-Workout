@@ -180,6 +180,7 @@ void CreateExerciseDialog::loadExerciseData(const SetStruct &data) {
     for(int i = 0; i < data.exercise.size(); i++) {
         qDebug() << "[" << i << "]" << data.exercise[i].name << " time = " << data.exercise[i].time;
         ExerciseWidget* wdg = this->createExersise();
+        wdg->setLanguage(currentLanguage);
         ExerciseStruct es;
         es.name = data.exercise[i].name;
         es.time = data.exercise[i].time;
