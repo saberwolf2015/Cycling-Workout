@@ -22,7 +22,7 @@ ExerciseWidget::ExerciseWidget(QWidget *parent) : QWidget(parent)
         nameLabel = new QLabel(groupBox);
         nameLabel->setText(currentLanguage.words["EXERCISE_WDG_EXERCISE_NAME"] );
         nameEdit = new QLineEdit(groupBox);
-        nameEdit->setText(currentLanguage.words["EXERCISE_WDG_DEFAULT_EXERCISE_NAME"]);
+        nameEdit->setText("");
         hlout->addWidget(nameLabel);
         hlout->addWidget(nameEdit);
 
